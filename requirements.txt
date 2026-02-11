@@ -1,0 +1,11 @@
+# Dependencias de Produccion - clockControl
+# Sistema de control de asistencia para SEGIP
+
+# Base de datos PostgreSQL
+psycopg2-binary>=2.8
+
+# Comunicacion con relojes biometricos ZKTeco
+pyzk>=0.9
+
+# Manejo de fechas (dependencia indirecta, pero recomendada)
+python-dateutil>=2.8

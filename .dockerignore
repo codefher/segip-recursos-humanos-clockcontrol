@@ -1,0 +1,41 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+env/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+indlog
+clockcontrol.log
+
+# Database config (usar tmp.database.ini en su lugar)
+database.ini
+
+# Backups
+*.backup
+requirements.txt.backup
+
+# Docs
+*.md
+!README.md
+*.drawio
+
+# OS
+.DS_Store
+Thumbs.db

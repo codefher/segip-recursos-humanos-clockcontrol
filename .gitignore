@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+env/
+*.egg-info/
+dist/
+build/
+
+# Database config (contiene credenciales)
+database.ini
+
+# Logs
+*.log
+indlog
+clockcontrol.log
+
+# Backups
+*.backup
+requirements.txt.backup
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.history/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+*.lnk
+
+# Obsolete files
+*.obsolete
+*.old
+*.bak
+legacy_backup/
+
+# Temporary files
+*.tmp
+*.temp
+clean.txt
+
+# Documentos que no son código
+*.pdf
+*.drawio
+*.drawio.bkp
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
