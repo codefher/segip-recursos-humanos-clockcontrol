@@ -187,9 +187,9 @@ mypy clockcontrol/
 
 ## Autores
 
+- Fernando Mendoza Escobar
 - Carlos Pacha Cordova
 - Enrique Torrez Amaru
-- Equipo SEGIP
 
 ## Licencia
 
