@@ -114,7 +114,7 @@ class AttendanceRepository:
         with self.db.get_cursor() as cur:
             # El stored procedure espera: (id_in, obj_marks)
             # id_in parece ser fijo en 4570 según código original
-            cur.callproc("rrhh.set_attendance_info_clock", ([4570, marks_json],))
+            cur.callproc("rrhh.set_attendance_info_clock", (4570, marks_json))
             result = cur.fetchone()
             
             if result:

@@ -72,32 +72,23 @@ class DatabaseConnection:
                 yield cur
     
     def ensure_tables_exist(self) -> None:
-        """Crea las tablas necesarias si no existen"""
+        """Verifica que las tablas necesarias existan"""
         with self.get_cursor() as cur:
-            # Tabla de marcajes
             cur.execute("""
-                CREATE TABLE IF NOT EXISTS rrhh.person_marks (
-                    id SERIAL PRIMARY KEY,
-                    carnet VARCHAR(255),
-                    date_mark VARCHAR(255),
-                    time_mark VARCHAR(255),
-                    ip_clock VARCHAR(255),
-                    id_reloj_bio INT
-                );
+                SELECT table_name FROM information_schema.tables
+                WHERE table_schema = 'rrhh'
+                  AND table_name IN ('person_marks', 'clock_conn')
             """)
-            
-            # Tabla de logs de conexión
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS rrhh.clock_conn (
-                    id SERIAL PRIMARY KEY,
-                    ip_clock VARCHAR(255),
-                    available BOOLEAN NOT NULL,
-                    date TIMESTAMP NOT NULL DEFAULT NOW(),
-                    obs VARCHAR(255)
-                );
-            """)
-            
-            logger.info("Tablas verificadas/creadas correctamente")
+            existing = {row[0] for row in cur.fetchall()}
+
+            missing = {'person_marks', 'clock_conn'} - existing
+            if missing:
+                logger.warning(
+                    f"Tablas faltantes en esquema rrhh: {missing}. "
+                    "Contacte al DBA para crearlas."
+                )
+            else:
+                logger.info("Tablas verificadas correctamente")
 
 
 def get_connection(params: dict) -> DatabaseConnection:

@@ -91,7 +91,6 @@ class Settings:
             format=self.logging.format,
             handlers=[
                 logging.FileHandler(self.logging.file),
-                logging.StreamHandler(),
             ],
         )
     

@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  clockcontrol:
+    build: .
+    container_name: clockcontrol
+    restart: unless-stopped
+
+    # Montar el archivo de credenciales de la BD (OBLIGATORIO)
+    volumes:
+      - ./database.ini:/app/database.ini:ro
+      - clockcontrol-logs:/app/logs
+
+    environment:
+      # Modo de ejecucion: "all" (todos los relojes) o "single" (un reloj)
+      - RUN_MODE=all
+
+      # Intervalo del cron en minutos
+      - CRON_INTERVAL=5
+
+      # Solo necesarios si RUN_MODE=single
+      # - CLOCK_IP=172.16.21.150
+      # - CLOCK_PORT=4370
+      # - CLOCK_PASSWORD=0
+
+    # El contenedor necesita acceso a la red donde estan los relojes
+    # y a la red donde esta PostgreSQL
+    network_mode: host
+
+volumes:
+  clockcontrol-logs:

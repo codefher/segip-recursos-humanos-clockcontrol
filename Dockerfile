@@ -1,5 +1,5 @@
 # clockControl - Sistema de Control de Asistencia SEGIP
-# Imagen Docker para ejecucion en contenedor
+# Imagen Docker con cron interno para ejecucion automatica
 
 FROM python:3.11-slim
 
@@ -11,20 +11,25 @@ LABEL version="2.0.0"
 # Variables de entorno
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+
+# Intervalo del cron en minutos (default: cada 5 minutos)
+ENV CRON_INTERVAL=5
+
+# Variables para modo individual (si se usa RUN_MODE=single)
 ENV CLOCK_IP="10.10.24.48"
 ENV CLOCK_PORT="4370"
 ENV CLOCK_PASSWORD="0"
-ENV RUN_MODE="single"
+ENV RUN_MODE="all"
 
 # Directorio de trabajo
 WORKDIR /app
 
 # Copiar archivos de configuracion primero (mejor cache de capas)
 COPY pyproject.toml requirements.txt ./
-COPY tmp.database.ini ./database.ini
 
-# Instalar dependencias del sistema
+# Instalar dependencias del sistema (cron + ping)
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    cron \
     iputils-ping \
     && rm -rf /var/lib/apt/lists/*
 
@@ -34,23 +39,24 @@ RUN pip install --no-cache-dir --upgrade pip \
 
 # Copiar codigo fuente
 COPY clockcontrol/ ./clockcontrol/
+COPY scripts/ ./scripts/
 
-# Instalar paquete en modo editable
+# Instalar paquete
 RUN pip install --no-cache-dir -e .
 
-# Usuario no-root para seguridad
-RUN useradd --create-home --shell /bin/bash clockuser \
-    && chown -R clockuser:clockuser /app
-USER clockuser
+# Dar permisos a scripts
+RUN chmod +x scripts/*.sh
 
-# Puerto del reloj biometrico (informativo)
-EXPOSE 4370/udp
+# Copiar script de inicio
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+# Crear directorio de logs
+RUN mkdir -p /app/logs
 
 # Healthcheck
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=60s --timeout=10s --start-period=10s --retries=3 \
     CMD python -c "from clockcontrol import __version__; print(__version__)" || exit 1
 
-# Comando por defecto
-# Modo individual: docker run -e CLOCK_IP=192.168.1.201 clockcontrol
-# Modo masivo: docker run -e RUN_MODE=all clockcontrol
-CMD ["sh", "-c", "if [ \"$RUN_MODE\" = 'all' ]; then python -m clockcontrol all; else python -m clockcontrol single --address $CLOCK_IP --port $CLOCK_PORT --password $CLOCK_PASSWORD; fi"]
+# Entrypoint configura el cron y arranca
+ENTRYPOINT ["/docker-entrypoint.sh"]
