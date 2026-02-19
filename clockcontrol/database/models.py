@@ -12,7 +12,7 @@ class Clock:
     id: int
     ip: str
     port: int
-    password: int
+    password: str
     active: bool = True
     name: Optional[str] = None
     location: Optional[str] = None
@@ -32,7 +32,7 @@ class Clock:
             id=row[0],
             ip=row[4],
             port=row[12] if len(row) > 12 else 4370,
-            password=row[6] if len(row) > 6 else 0,
+            password=str(row[6]) if len(row) > 6 else "0",
             active=True,
         )
 

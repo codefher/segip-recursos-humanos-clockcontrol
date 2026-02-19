@@ -45,7 +45,7 @@ class ZKDeviceManager:
         ip: str,
         port: int = 4370,
         timeout: int = 10,
-        password: int = 0,
+        password: str = "0",
         force_udp: bool = False,
     ):
         if ZK is None:
@@ -62,7 +62,7 @@ class ZKDeviceManager:
             ip,
             port=port,
             timeout=timeout,
-            password=password,
+            password=int(password) if str(password).isdigit() else 0,
             force_udp=force_udp,
         )
     
@@ -98,39 +98,53 @@ class ZKDeviceManager:
         return reachable
     
     @contextmanager
-    def connect(self) -> Generator[Any, None, None]:
+    def connect(self, retries: int = 2, delay: float = 2.0) -> Generator[Any, None, None]:
         """
-        Context manager para conexión con el dispositivo.
-        
+        Context manager para conexión con el dispositivo, con reintentos.
+
+        Args:
+            retries: Número de intentos de conexión
+            delay: Segundos entre reintentos
+
         Yields:
             Conexión activa al dispositivo ZK
-            
+
         Raises:
-            DeviceConnectionError: Si no se puede conectar
-            
-        Ejemplo:
-            with manager.connect() as conn:
-                data = conn.get_attendance()
+            DeviceConnectionError: Si no se puede conectar después de todos los intentos
         """
+        import time
+
         conn = None
-        try:
-            logger.info(f"Conectando a {self.ip}:{self.port}...")
-            conn = self._zk.connect()
-            logger.info(f"Conexión exitosa a {self.ip}")
-            yield conn
-            
-        except Exception as e:
-            logger.error(f"Error conectando a {self.ip}: {e}")
+        last_error = None
+
+        for attempt in range(1, retries + 1):
+            try:
+                logger.info(f"Conectando a {self.ip}:{self.port} (intento {attempt}/{retries})...")
+                conn = self._zk.connect()
+                logger.info(f"Conexión exitosa a {self.ip}")
+                break
+            except Exception as e:
+                last_error = e
+                if attempt < retries:
+                    logger.warning(f"Intento {attempt} fallido para {self.ip}: {e}. Reintentando en {delay}s...")
+                    time.sleep(delay)
+                else:
+                    logger.error(f"Error conectando a {self.ip} después de {retries} intentos: {e}")
+
+        if conn is None:
             raise DeviceConnectionError(
-                f"No se pudo conectar a {self.ip}:{self.port} - {e}"
+                f"No se pudo conectar a {self.ip}:{self.port} después de {retries} intentos - {last_error}"
             )
+
+        try:
+            yield conn
         finally:
             if conn:
                 try:
                     conn.disconnect()
                     logger.debug(f"Desconectado de {self.ip}")
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"Error al desconectar de {self.ip}: {e}")
     
     def get_device_info(self, conn: Any) -> DeviceInfo:
         """

@@ -53,7 +53,7 @@ class DatabaseConnection:
             if conn:
                 conn.rollback()
             logger.error(f"Error de base de datos: {e}")
-            raise DatabaseError(f"Error de base de datos: {e}")
+            raise DatabaseError(f"Error de base de datos: {e}") from e
         finally:
             if conn:
                 conn.close()

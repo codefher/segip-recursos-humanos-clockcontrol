@@ -45,7 +45,7 @@ class DeviceConfig:
     """Configuración por defecto de dispositivos ZK"""
     default_port: int = 4370
     default_timeout: int = 10
-    default_password: int = 0
+    default_password: str = "0"
     ping_attempts: int = 2
 
 
@@ -85,12 +85,18 @@ class Settings:
         )
     
     def _setup_logging(self) -> None:
-        """Configura el sistema de logging"""
+        """Configura el sistema de logging con rotacion de archivos"""
+        from logging.handlers import RotatingFileHandler
+
         logging.basicConfig(
             level=getattr(logging, self.logging.level),
             format=self.logging.format,
             handlers=[
-                logging.FileHandler(self.logging.file),
+                RotatingFileHandler(
+                    self.logging.file,
+                    maxBytes=10 * 1024 * 1024,  # 10 MB
+                    backupCount=5,
+                ),
             ],
         )
     

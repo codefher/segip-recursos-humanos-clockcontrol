@@ -61,7 +61,7 @@ class ClockControlApp:
         self,
         ip: str,
         port: int = 4370,
-        password: int = 0,
+        password: str = "0",
     ) -> ProcessResult:
         """
         Procesa marcajes de un solo reloj.
@@ -115,7 +115,7 @@ class ClockControlApp:
                 # Guardar en DB
                 if marks:
                     json_data = AttendanceProcessor.to_json(marks)
-                    result.marks_saved = self.attendance_repo.save_marks(json_data)
+                    result.marks_saved = self.attendance_repo.save_marks(clock.id, json_data)
                 
                 result.success = True
                 
@@ -195,7 +195,7 @@ def print_summary(results: List[ProcessResult]) -> None:
     print("=" * 60 + "\n")
 
 
-def run_single(ip: str, port: int = 4370, password: int = 0) -> int:
+def run_single(ip: str, port: int = 4370, password: str = "0") -> int:
     """
     Ejecuta modo individual (un solo reloj).
     
@@ -282,9 +282,19 @@ def main() -> None:
         "single",
         help="Obtener marcajes de un solo reloj",
     )
+    def validate_ip(value: str) -> str:
+        """Valida que el valor sea una IP válida"""
+        import ipaddress
+        try:
+            ipaddress.ip_address(value)
+            return value
+        except ValueError:
+            raise argparse.ArgumentTypeError(f"IP inválida: {value}")
+
     single_parser.add_argument(
         "-a", "--address",
         required=True,
+        type=validate_ip,
         help="IP del reloj biométrico",
     )
     single_parser.add_argument(
@@ -295,8 +305,8 @@ def main() -> None:
     )
     single_parser.add_argument(
         "-P", "--password",
-        type=int,
-        default=0,
+        type=str,
+        default="0",
         help="Contraseña del reloj (default: 0)",
     )
     

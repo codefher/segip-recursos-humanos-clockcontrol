@@ -55,8 +55,10 @@ RUN chmod +x /docker-entrypoint.sh
 RUN mkdir -p /app/logs
 
 # Healthcheck
-HEALTHCHECK --interval=60s --timeout=10s --start-period=10s --retries=3 \
-    CMD python -c "from clockcontrol import __version__; print(__version__)" || exit 1
+HEALTHCHECK --interval=60s --timeout=10s --start-period=30s --retries=3 \
+    CMD python -c "from clockcontrol import __version__; print(__version__)" \
+        && test -f /app/database.ini \
+        || exit 1
 
 # Entrypoint configura el cron y arranca
 ENTRYPOINT ["/docker-entrypoint.sh"]

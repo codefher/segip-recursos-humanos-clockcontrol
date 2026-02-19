@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   clockcontrol:
     build: .
@@ -16,7 +14,7 @@ services:
       - RUN_MODE=all
 
       # Intervalo del cron en minutos
-      - CRON_INTERVAL=5
+      - CRON_INTERVAL=1
 
       # Solo necesarios si RUN_MODE=single
       # - CLOCK_IP=172.16.21.150

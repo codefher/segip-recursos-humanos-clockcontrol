@@ -80,7 +80,7 @@ echo -e "${GREEN}✓${NC} Dependencias instaladas"
 echo ""
 echo "🔍 Verificando dependencias críticas..."
 python -c "import psycopg2" && echo -e "${GREEN}✓${NC} psycopg2 OK" || echo -e "${RED}❌ psycopg2 FALLO${NC}"
-python -c "import sys; sys.path.append('./lib/pyzk'); from zk import ZK" && echo -e "${GREEN}✓${NC} pyzk OK" || echo -e "${YELLOW}⚠${NC}  pyzk no disponible (instalar manualmente si es necesario)"
+python -c "from zk import ZK" && echo -e "${GREEN}✓${NC} pyzk OK" || echo -e "${YELLOW}⚠${NC}  pyzk no disponible (instalar manualmente si es necesario)"
 
 # Configurar base de datos
 echo ""

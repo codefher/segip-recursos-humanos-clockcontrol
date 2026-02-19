@@ -7,8 +7,6 @@ from dataclasses import dataclass, asdict
 from datetime import date, datetime, timedelta
 from typing import Any, List, Optional
 
-from clockcontrol.core.exceptions import ValidationError
-
 logger = logging.getLogger(__name__)
 
 
@@ -103,13 +101,20 @@ class AttendanceProcessor:
         "Attendance <carnet> : <YYYY-MM-DD> <HH:MM:SS> <status>"
         """
         try:
-            data_str = str(attendance)
+            data_str = str(attendance).strip()
             parts = data_str.split()
-            
+
             if len(parts) < 5:
-                logger.warning(f"Formato de marcaje inválido: {data_str}")
+                logger.warning(f"Formato inesperado ({len(parts)} partes): {data_str[:100]}")
                 return None
-            
+
+            # Validar formato de fecha y hora
+            try:
+                datetime.strptime(f"{parts[3]} {parts[4]}", "%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                logger.warning(f"Fecha/hora invalida: {parts[3]} {parts[4]}")
+                return None
+
             return AttendanceMark(
                 carnet=parts[1],
                 date_mark=parts[3],
@@ -118,7 +123,7 @@ class AttendanceProcessor:
                 id_reloj_bio=clock_id,
             )
         except Exception as e:
-            logger.error(f"Error parseando marcaje: {e}")
+            logger.error(f"Error parseando marcaje: {e} - datos: {str(attendance)[:100]}")
             return None
     
     def _is_in_date_range(
