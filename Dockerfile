@@ -44,12 +44,12 @@ COPY scripts/ ./scripts/
 # Instalar paquete
 RUN pip install --no-cache-dir -e .
 
-# Dar permisos a scripts
-RUN chmod +x scripts/*.sh
+# Asegurar line endings Unix y dar permisos a scripts
+RUN sed -i 's/\r$//' scripts/*.sh && chmod +x scripts/*.sh
 
-# Copiar script de inicio
+# Copiar script de inicio y asegurar line endings Unix (LF)
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+RUN sed -i 's/\r$//' /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh
 
 # Crear directorio de logs
 RUN mkdir -p /app/logs

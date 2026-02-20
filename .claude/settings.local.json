@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -NoProfile -Command:*)",
+      "Bash(python -c \"p=''f:/Codigos/Project/Recursos Humanos/github/segip-recursos-humanos-clockcontrol/docker-entrypoint.sh''; d=open\\(p,''rb''\\).read\\(\\).replace\\(b''\\\\r\\\\n'',b''\\\\n''\\); open\\(p,''wb''\\).write\\(d\\)\")",
+      "Bash(python3 -c \"p=''f:/Codigos/Project/Recursos Humanos/github/segip-recursos-humanos-clockcontrol/docker-entrypoint.sh''; d=open\\(p,''rb''\\).read\\(\\).replace\\(b''\\\\r\\\\n'',b''\\\\n''\\); open\\(p,''wb''\\).write\\(d\\)\")"
+    ]
+  }
+}
